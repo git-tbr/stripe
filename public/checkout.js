@@ -1,5 +1,6 @@
 // This is your test publishable API key.
 const stripe = Stripe("pk_test_51RJafKGmwrpUlslz4OKny8waaavj7mLk1TxJGojLktZcqktj7oz2JnS4nFAJ15V3Um6DVHL1pN286QbGAaO0nw5L00F0d6x6Cl");
+const returnUrl = "https://eventos.tbr.com.br/coruja-crpp2025/public/complete.html";
 
 // The items the customer wants to buy
 const items = [{ id: "xl-tshirt", amount: 1000 }];
@@ -14,7 +15,7 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-  const { clientSecret } = await fetch("create.php", {
+  const { clientSecret } = await fetch("./create.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ items }),
@@ -38,7 +39,8 @@ async function handleSubmit(e) {
     elements,
     confirmParams: {
       // Make sure to change this to your payment completion page
-      return_url: "http://localhost:4242/complete.html",
+      return_url: returnUrl,
+      receipt_email: document.getElementById("email").value,
     },
   });
 
