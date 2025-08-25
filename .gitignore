@@ -1,0 +1,5 @@
+# Composer vendor directory
+/vendor/
+
+# secret keys
+/secrets.php
