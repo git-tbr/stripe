@@ -9,7 +9,7 @@ $stripeSecretKey = sql([
         $contaPagamento
     ],
     "only_first_row" => "1"
-])['sandbox_secret'];
+])['producao_secret'];
 
 ?>
 <!DOCTYPE html>

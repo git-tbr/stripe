@@ -1,7 +1,7 @@
 <?php
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require_once '../vendor/autoload.php';
 require_once '../secrets.php';
@@ -15,7 +15,7 @@ $stripeSecretKey = sql([
         $contaPagamento
     ],
     "only_first_row" => "1"
-])['sandbox_secret'];
+])['producao_secret'];
 
 $stripe = new \Stripe\StripeClient($stripeSecretKey);
 
@@ -47,7 +47,8 @@ try {
     // Create a PaymentIntent with amount and currency
     $paymentIntent = $stripe->paymentIntents->create([
         'amount' => $valorTotal,
-        'currency' => 'brl',
+        'currency' => 'eur',
+        'description' => 'Pagamento da taxa de inscrição do Curso Revisão Pré-Prova',
         'automatic_payment_methods' => [
             'enabled' => true,
         ],

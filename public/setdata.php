@@ -11,8 +11,8 @@ $jsonStr = file_get_contents('php://input');
 $jsonObj = json_decode($jsonStr, true);
 
 sql([
-    "statement" => "UPDATE pagamentos.pedidos_stripe SET estado=?, retorno_completo=? WHERE payment_intent=?,",
-    "types" => "ss",
+    "statement" => "UPDATE pagamentos.pedidos_stripe SET estado=?, retorno_completo=? WHERE payment_intent=?",
+    "types" => "sss",
     "parameters" => [
         "pago",
         $jsonStr,
@@ -31,31 +31,31 @@ $busca = sql([
 
 sql([
     "statement" => "INSERT INTO tbrevent.purchase SET   `event`=?, 
-                                                        registration=?, 
+                                                        register=?, 
                                                         `value`=?,
                                                         currency=?,
                                                         `date`=now(),
-                                                        date_update=(),
+                                                        date_update=now(),
                                                         `status`='2',
                                                         payment_ref_code=?,
                                                         payment_status='Pago',
                                                         account='stripe',
                                                         control_hash=?",
-    "types" => "iii",
+    "types" => "iidsss",
     "parameters" => [
         $busca['event'],
         $busca['id'],
         floatVal($busca['valor'] / 100),
-        "eur",
+        $jsonObj['currency'],
         $busca['payment_intent'],
         $busca['controle']
     ]
 ]);
 
 sql([
-    "statement" => "UPDATE tbrevent.registration SET `enable`=1 WHERE id=?,",
-    "types" => "i",
+    "statement" => "UPDATE tbrevent.registration SET `enable`=1 WHERE control_hash=?",
+    "types" => "s",
     "parameters" => [
-        $busca['id']
+        $busca['controle']
     ]
 ]);

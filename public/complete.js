@@ -59,6 +59,7 @@ function setPaymentDetails(intent) {
   document.querySelector("#intent-status").textContent = msg;
   document.querySelector("#view-details").href = `https://dashboard.stripe.com/payments/${intent.id}`;
 
+  sessionStorage.setItem('enable', 1);
   //salvando dados
   fetch('./setdata.php', {
     method: 'post',
@@ -75,7 +76,7 @@ function setErrorState() {
 }
 
 // Stripe.js instance
-const stripe = Stripe(document.querySelector('#sk').value);
+const stripe = Stripe('pk_live_51RJafKGmwrpUlslzdGpkJ4fGJsh0RptD0gU0d2ZoStCiVnyNr29jBywhRJmZDvIrY6u7XgGVJGq3Rbjciyx9iVLQ00ohnugh6x');
 
 checkStatus();
 

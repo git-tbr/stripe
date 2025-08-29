@@ -1,4 +1,6 @@
-const stripe = Stripe(document.querySelector('#sk').value);
+//const sk = document.querySelector('#sk').value;
+//console.log(sk);
+const stripe = Stripe('pk_live_51RJafKGmwrpUlslzdGpkJ4fGJsh0RptD0gU0d2ZoStCiVnyNr29jBywhRJmZDvIrY6u7XgGVJGq3Rbjciyx9iVLQ00ohnugh6x');
 const returnUrl = "https://eventos.tbr.com.br/coruja-crpp2025/public/complete.php";
 
 const queryString = window.location.search;
