@@ -1,9 +1,11 @@
-// This is your test publishable API key.
-const stripe = Stripe("pk_test_51RJafKGmwrpUlslz4OKny8waaavj7mLk1TxJGojLktZcqktj7oz2JnS4nFAJ15V3Um6DVHL1pN286QbGAaO0nw5L00F0d6x6Cl");
-const returnUrl = "https://eventos.tbr.com.br/coruja-crpp2025/public/complete.html";
+const stripe = Stripe(document.querySelector('#sk').value);
+const returnUrl = "https://eventos.tbr.com.br/coruja-crpp2025/public/complete.php";
 
-// The items the customer wants to buy
-const items = [{ id: "xl-tshirt", amount: 1000 }];
+const queryString = window.location.search;
+const params = new URLSearchParams(queryString);
+const control = params.get('control');
+const usuario = params.get('usuario');
+const evento = params.get('evento');
 
 let elements;
 
@@ -13,12 +15,11 @@ document
   .querySelector("#payment-form")
   .addEventListener("submit", handleSubmit);
 
-// Fetches a payment intent and captures the client secret
 async function initialize() {
   const { clientSecret } = await fetch("./create.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items }),
+    body: JSON.stringify({ control, usuario, evento }),
   }).then((r) => r.json());
 
   elements = stripe.elements({ clientSecret });
@@ -38,17 +39,11 @@ async function handleSubmit(e) {
   const { error } = await stripe.confirmPayment({
     elements,
     confirmParams: {
-      // Make sure to change this to your payment completion page
       return_url: returnUrl,
       receipt_email: document.getElementById("email").value,
     },
   });
 
-  // This point will only be reached if there is an immediate error when
-  // confirming the payment. Otherwise, your customer will be redirected to
-  // your `return_url`. For some payment methods like iDEAL, your customer will
-  // be redirected to an intermediate site first to authorize the payment, then
-  // redirected to the `return_url`.
   if (error.type === "card_error" || error.type === "validation_error") {
     showMessage(error.message);
   } else {

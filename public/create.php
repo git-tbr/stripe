@@ -1,20 +1,39 @@
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 require_once '../vendor/autoload.php';
 require_once '../secrets.php';
-//require_once '../session.php';
-//require_once '../sql.php';
+require_once '../session.php';
+require_once '../sql.php';
+
+$stripeSecretKey = sql([
+    "statement" => "SELECT * FROM pagamentos.empresas WHERE id = ?",
+    "types" => "i",
+    "parameters" => [
+        $contaPagamento
+    ],
+    "only_first_row" => "1"
+])['sandbox_secret'];
 
 $stripe = new \Stripe\StripeClient($stripeSecretKey);
 
-function calculateOrderAmount(array $items): int {
-    // Calculate the order total on the server to prevent
-    // people from directly manipulating the amount on the client
-    $total = 0;
-    foreach($items as $item) {
-      $total += $item->amount;
-    }
-    return $total;
+function calculateOrderAmount($item): int
+{
+
+    $busca = sql([
+        "statement" => "SELECT * FROM pagamentos.temp WHERE controle = ? AND usuario = ? AND evento = ?",
+        "types" => "sii",
+        "parameters" => [
+            $item['control'],
+            $item['usuario'],
+            $item['evento']
+        ],
+        "only_first_row" => "1"
+    ]);
+
+    return intval($busca['valor'] * 100);
 }
 
 header('Content-Type: application/json');
@@ -22,15 +41,28 @@ header('Content-Type: application/json');
 try {
     // retrieve JSON from POST body
     $jsonStr = file_get_contents('php://input');
-    $jsonObj = json_decode($jsonStr);
+    $jsonObj = json_decode($jsonStr, true);
+    $valorTotal = calculateOrderAmount($jsonObj);
 
     // Create a PaymentIntent with amount and currency
     $paymentIntent = $stripe->paymentIntents->create([
-        'amount' => calculateOrderAmount($jsonObj->items),
+        'amount' => $valorTotal,
         'currency' => 'brl',
         'automatic_payment_methods' => [
             'enabled' => true,
         ],
+    ]);
+
+    sql([
+        "statement" => "INSERT INTO pagamentos.pedidos_stripe SET empresa=?, controle=?, valor=?, payment_intent=?, estado=?",
+        "types" => "isiss",
+        "parameters" => [
+            $contaPagamento,
+            $jsonObj['control'],
+            $valorTotal,
+            $paymentIntent->client_secret,
+            "aguardando"
+        ]
     ]);
 
     $output = [

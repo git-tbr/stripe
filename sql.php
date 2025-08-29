@@ -1,5 +1,5 @@
 <?php
-	require_once "./secrets.php";
+	//require_once "./secrets.php";
 	$mysqlnd=function_exists('mysqli_get_client_stats');
 	define('SERVER',$db_server);
 	define('USER', $db_user);

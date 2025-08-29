@@ -13,6 +13,7 @@ body {
   align-content: center;
   height: 100vh;
   width: 100vw;
+  background-color: #e5ebe5;
 }
 
 form {

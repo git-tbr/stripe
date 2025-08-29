@@ -23,6 +23,7 @@ function setPaymentDetails(intent) {
   let statusText = "Something went wrong, please try again.";
   let iconColor = "#DF1B41";
   let icon = ErrorIcon;
+  let msg = '';
 
 
   if (!intent) {
@@ -32,17 +33,20 @@ function setPaymentDetails(intent) {
 
   switch (intent.status) {
     case "succeeded":
-      statusText = "Payment succeeded";
+      statusText = "Pagamento realizado com sucesso";
       iconColor = "#30B130";
       icon = SuccessIcon;
+      msg = 'Sucesso';
       break;
     case "processing":
-      statusText = "Your payment is processing.";
+      statusText = "Seu pagamento está sendo processado";
       iconColor = "#6D6E78";
       icon = InfoIcon;
+      msg = 'Processando';
       break;
     case "requires_payment_method":
-      statusText = "Your payment was not successful, please try again.";
+      statusText = "Ocorreu um erro, por favor tente novamente";
+      msg = 'Requer método de pagamento';
       break;
     default:
       break;
@@ -52,20 +56,26 @@ function setPaymentDetails(intent) {
   document.querySelector("#status-icon").innerHTML = icon;
   document.querySelector("#status-text").textContent= statusText;
   document.querySelector("#intent-id").textContent = intent.id;
-  document.querySelector("#intent-status").textContent = intent.status;
+  document.querySelector("#intent-status").textContent = msg;
   document.querySelector("#view-details").href = `https://dashboard.stripe.com/payments/${intent.id}`;
+
+  //salvando dados
+  fetch('./setdata.php', {
+    method: 'post',
+    body: JSON.stringify(intent)
+  })
 }
 
 function setErrorState() {
   document.querySelector("#status-icon").style.backgroundColor = "#DF1B41";
   document.querySelector("#status-icon").innerHTML = ErrorIcon;
-  document.querySelector("#status-text").textContent= "Something went wrong, please try again.";
+  document.querySelector("#status-text").textContent= "Ocorreu um erro, por favor tente novamente";
   document.querySelector("#details-table").classList.add("hidden");
   document.querySelector("#view-details").classList.add("hidden");
 }
 
 // Stripe.js instance
-const stripe = Stripe("pk_test_51RJafKGmwrpUlslz4OKny8waaavj7mLk1TxJGojLktZcqktj7oz2JnS4nFAJ15V3Um6DVHL1pN286QbGAaO0nw5L00F0d6x6Cl");
+const stripe = Stripe(document.querySelector('#sk').value);
 
 checkStatus();
 
